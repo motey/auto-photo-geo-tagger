@@ -1,3 +1,3 @@
 from apgt.file_handlers.handler_local import LocalFileHandler
 from apgt.file_handlers.handler_webdav3 import WebDav3Handler
-from apgt.file_handlers._handler_interface import FileHandlerInterface
+from apgt.file_handlers._handler_interface import FileHandlerInterface, RemoteFile

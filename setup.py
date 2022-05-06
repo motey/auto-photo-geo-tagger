@@ -14,7 +14,7 @@ setup(
     author_email="motey@gmx.de",
     license="MIT",
     packages=["apgt"],
-    install_requires=["DZDConfigs", "exif", "gpxpy"],
+    install_requires=["DZDConfigs", "pytz", "exif", "gpxpy", "timezonefinder[numba]"],
     python_requires=">=3.9",
     zip_safe=False,
     include_package_data=True,

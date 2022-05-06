@@ -1,7 +1,7 @@
 from importlib.resources import path
 from typing import Dict, List
 from pathlib import PurePath, Path
-from apgt.file_handlers._handler_interface import FileHandlerInterface
+from apgt.file_handlers._handler_interface import FileHandlerInterface, RemoteFile
 
 
 class LocalFileHandler(FileHandlerInterface):
@@ -16,13 +16,13 @@ class LocalFileHandler(FileHandlerInterface):
                 pathes.append(obj)
         return pathes
 
-    def list_files(self, directory: PurePath) -> List[PurePath]:
+    def list_files(self, directory: PurePath) -> List[RemoteFile]:
         p = Path(directory)
-        pathes = []
+        files = []
         for obj in p.iterdir():
             if obj.is_file():
-                pathes.append(obj)
-        return pathes
+                files.append(RemoteFile(remote_path=obj, file_handler=self))
+        return files
 
     def read_file(self, path: PurePath) -> bytes:
         return open(path, "rb")

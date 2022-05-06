@@ -1,5 +1,5 @@
 from typing import List, Dict, Iterator, Type
-from apgt.file_handlers import FileHandlerInterface
+from apgt.file_handlers import FileHandlerInterface, RemoteFile
 from pathlib import PurePath
 
 
@@ -16,21 +16,24 @@ class FileSource:
         self.base_pathes = base_pathes
         self.file_handler_class: Type[FileHandlerInterface] = file_handler_class
         self.file_handler_params: Dict = file_handler_params
-        self.current_photo: PurePath = None
+        self.current_photo: RemoteFile = None
         self.allowed_extensions: List[str] = [ext.lower() for ext in allowed_extensions]
 
         self._current_file_handler: FileHandlerInterface = None
 
-    def iter_files(self) -> Iterator[bytes]:
+    def iter_files(self) -> Iterator[RemoteFile]:
         self._initate_file_handler()
         for base_path in self.base_pathes:
             for dir_path in self._walk_dirs(
                 file_handler=self._current_file_handler, base_path=base_path
             ):
-                for file_path in self._current_file_handler.list_files(dir_path):
-                    if file_path.suffix.lower() in self.allowed_extensions:
-                        self.current_photo = file_path
-                        yield self._current_file_handler.read_file(file_path)
+                for remote_file in self._current_file_handler.list_files(dir_path):
+                    if (
+                        remote_file.remote_path.suffix.lower()
+                        in self.allowed_extensions
+                    ):
+                        self.current_photo = remote_file
+                        yield remote_file
 
     def update_current_file(self, content: bytes):
         if self.current_photo is None:
