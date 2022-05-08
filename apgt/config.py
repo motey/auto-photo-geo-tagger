@@ -3,7 +3,7 @@ from Configs import ConfigBase
 
 
 class DEFAULT(ConfigBase):
-
+    LOG_LEVEL = "INFO"
     # FILES_REMOTE_ACCESS; If you use any remote locations for you files you can define the access parameters here
     # At the moment supported "type"s are :
     # * "webdav3" based on https://pypi.org/project/webdavclient3/
@@ -12,9 +12,9 @@ class DEFAULT(ConfigBase):
     FILES_REMOTE_ACCESS: Dict[str, Dict[str, str]] = {}
 
     # FILES_GPX_TRACK_LOCATIONS; The locations where apgt can find your GPX Track for geotagging your photos
-    # If you want to specify any remote locations you need to provide the "type" parameter with a defintion from the FILES_REMOTE_ACCESS parameter
+    # If you want to specify any remote locations you need to provide the "remote_access_config_name" parameter with a defintion from the FILES_REMOTE_ACCESS parameter
     # examples:
-    # {"my-local-gpx01":{"pathes":["/data/gpx"]}, "my-remote-gpx02":{"pathes":["Documents/gpx","Archive/gpx"],"type":"nextcloud01"}}
+    # {"my-local-gpx01":{"pathes":["/data/gpx"]}, "my-remote-gpx02":{"pathes":["Documents/gpx","Archive/gpx"],"remote_access_config_name":"nextcloud01"}}
     FILES_GPX_TRACK_LOCATIONS: Dict[str, Dict[str, str]] = {}
 
     # FILES_PHOTO_EXTENSIONS; Only tag images with following extenions. Hints: include dot: e.g. ".jpeg" | case insensitive: .jpeg=.JPEG
@@ -29,10 +29,18 @@ class DEFAULT(ConfigBase):
     # {"my-local-pics01":{"pathes":["/data/pics"]}, "my-remote-pics02":{"pathes":["Documents/Pictures","Archive/Pictures"],"type":"nextcloud01"}}
     FILES_PHOTOS_LOCATIONS: Dict = {}
 
-    # TAGGING_TIME_TOLERANCE; Which difference in seconds of GPX Track point time and photo taken time do we tolerate to assume, that a photo was shot at this track point
+    # FILES_SURVIVE_NO_GPX_TRACKS_FOUND; When there are no gpx tracks found in any source pathes, apgt will raise an exception and exit.
+    # Set FILES_SURVIVE_NO_GPX_TRACKS_FOUND to True if you start apgt before you add any GPX tracks to your file system and want to supress this specific exception
+    FILES_SURVIVE_NO_GPX_TRACKS_FOUND: bool = False
+
+    # TAGGING_TIME_TOLERANCE_SECS; Which difference in seconds of GPX Track point time and photo taken time do we tolerate to assume, that a photo was shot at this track point
     # 0 to disable and always just take the nearest point. No mater how far away its from the photo shot time
     # defaults to 300
     TAGGING_TIME_TOLERANCE_SECS: int = 300
+
+    # TAGGING_IGNORE_TIME_TOLERANCE_IF_DISTANCE_SMALLER_THEN_N_METERS; Some Tracker will not produce new tracking points if there was no movement. This would collide with the TAGGING_TIME_TOLERANCE_SECS parameter.
+    # With this setting we can force to use tracking points further away in time as TAGGING_TIME_TOLERANCE_SECS to to geotag photos. even if the photos were taken hours after the tracking point event.
+    TAGGING_IGNORE_TIME_TOLERANCE_IF_DISTANCE_SMALLER_THEN_N_METERS: int = 60
 
     # TAGGING_ACCURACY_TOLERANCE_METER; if a gpx trackpoint does have a `extension/accuracy` data, we can define a max value of accuracy we tolerate to use the value for tagging
     # 0 for disable
@@ -47,7 +55,19 @@ class DEFAULT(ConfigBase):
     # "0 * * * *" -> at every full hour
     # "0 */6 * * *" -> every six hours
     # "0 23 * * *" -> every night at 23:00
-    TAGGING_CRON_INTERVAL: str = "0 23 * * *"
+    TAGGING_CRON_INTERVAL: str = None
 
     # TAGGING_CRON_INTERVAL; Run once immediately when started, irrespective of TAGGING_CRON_INTERVAL
     TAGGING_CRON_RUN_AT_START: bool = True
+
+    TAGGING_ADDITIONAL_EXIF_TAGS_IF_MODIFIED: Dict = {
+        "UserComment": "GPS location added with auto-photo-geo-tagger"
+    }
+
+
+class TEST(DEFAULT):
+    LOG_LEVEL = "DEBUG"
+    FILES_GPX_TRACK_LOCATIONS = {
+        "my-local-gpx01": {"pathes": ["tests/test_data/tracks"]}
+    }
+    FILES_PHOTO_EXTENSIONS = {"my-local-gpx01": {"pathes": ["tests/test_data/images"]}}

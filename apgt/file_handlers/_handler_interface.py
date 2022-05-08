@@ -1,6 +1,8 @@
 from typing import Dict, List
 from pathlib import PurePath
 import datetime
+from exif import Image
+from gpxpy.gpx import GPXXMLSyntaxException
 
 
 class RemoteFile:
@@ -12,13 +14,19 @@ class RemoteFile:
     ):
         self.remote_path = remote_path
         self.file_handler = file_handler
-        self._content = content
+        self._content: bytes = content
+        self._exif_image: Image = None
 
     def push(self):
-        self.file_handler.write_file(path=self.remote_path, content=self.content)
+        """Write local state of file back via file_handler backend"""
+        # if _exif_image was called, we assume that we want to write back self._exif_image data. else we just write back byte content in self._content
+        self.file_handler.write_file(
+            path=self.remote_path,
+            content=self._exif_image.get_file() if self._exif_image else self.content,
+        )
 
     @property
-    def content(self):
+    def content(self) -> bytes:
         if self._content is None:
             self._content = self.file_handler.read_file(self.remote_path)
         return self._content
@@ -26,6 +34,17 @@ class RemoteFile:
     @content.setter
     def content(self, value: bytes):
         self._content = value
+
+    @property
+    def exif_image(self) -> Image:
+        if self._exif_image is None:
+            try:
+                self._exif_image = Image(self.content)
+            except GPXXMLSyntaxException:
+                raise ValueError(
+                    f"Not a valid image file format or invalid exif data for file ' {self.remote_path}'"
+                )
+        return self._exif_image
 
 
 class FileHandlerInterface:

@@ -6,7 +6,7 @@ from croniter import croniter
 import datetime
 import time
 from multiprocessing import Process
-from typing import Callable
+from typing import Callable, List, Dict
 from subprocess import SubprocessError
 
 if __name__ == "__main__":
@@ -17,6 +17,7 @@ if __name__ == "__main__":
     SCRIPT_DIR = os.path.join(SCRIPT_DIR, "..")
     sys.path.insert(0, os.path.normpath(SCRIPT_DIR))
 from apgt import APGT
+from apgt.apgt import ErrorNoGPXTracksFound
 from apgt.config import DEFAULT
 
 config: DEFAULT = getConfig()
@@ -39,7 +40,46 @@ def run_in_subprocess(func: Callable):
 
 def run_apgt():
     auto_tagger = APGT()
-    auto_tagger.run()
+    auto_tagger.ADDITIONAL_EXIF_TAGS_IF_MODIFIED = (
+        config.TAGGING_ADDITIONAL_EXIF_TAGS_IF_MODIFIED
+    )
+    auto_tagger.NEAREST_TIME_TOLERANCE_SECS = config.TAGGING_TIME_TOLERANCE_SECS
+    auto_tagger.IGNORE_NEAREST_TIME_TOLERANCE_SECS_IF_DISTANCE_SMALLER_THEN_N_METERS = (
+        config.TAGGING_IGNORE_TIME_TOLERANCE_IF_DISTANCE_SMALLER_THEN_N_METERS
+    )
+    for file_source_name, file_source_def in config.FILES_GPX_TRACK_LOCATIONS.items():
+        pathes: List[str] = file_source_def["pathes"]
+        access_config = None
+        if "remote_access_config_name" in file_source_def:
+            access_config: Dict[str, str] = config.FILES_REMOTE_ACCESS[
+                file_source_def["remote_access_config_name"]
+            ]
+        auto_tagger.add_gpx_file_source(
+            name=file_source_name,
+            pathes=pathes,
+            file_source_type=access_config["type"] if access_config else "local",
+            file_source_params=access_config["params"] if access_config else None,
+            allowed_extensions=config.FILES_GPX_EXTENSIONS,
+        )
+    for file_source_name, file_source_def in config.FILES_PHOTOS_LOCATIONS.items():
+        pathes: List[str] = file_source_def["pathes"]
+        access_config = None
+        if "remote_access_config_name" in file_source_def:
+            access_config: Dict[str, str] = config.FILES_REMOTE_ACCESS[
+                file_source_def["remote_access_config_name"]
+            ]
+        auto_tagger.add_photo_file_source(
+            name=file_source_name,
+            pathes=pathes,
+            file_source_type=access_config["type"] if access_config else "local",
+            file_source_params=access_config["params"] if access_config else None,
+            allowed_extensions=config.FILES_GPX_EXTENSIONS,
+        )
+    try:
+        auto_tagger.run()
+    except ErrorNoGPXTracksFound:
+        if not config.FILES_SURVIVE_NO_GPX_TRACKS_FOUND:
+            raise
 
 
 def main():

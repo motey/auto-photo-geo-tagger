@@ -16,7 +16,7 @@ class FileSource:
         self.base_pathes = base_pathes
         self.file_handler_class: Type[FileHandlerInterface] = file_handler_class
         self.file_handler_params: Dict = file_handler_params
-        self.current_photo: RemoteFile = None
+        self.current_file: RemoteFile = None
         self.allowed_extensions: List[str] = [ext.lower() for ext in allowed_extensions]
 
         self._current_file_handler: FileHandlerInterface = None
@@ -32,14 +32,17 @@ class FileSource:
                         remote_file.remote_path.suffix.lower()
                         in self.allowed_extensions
                     ):
-                        self.current_photo = remote_file
+                        self.current_file = remote_file
                         yield remote_file
 
     def update_current_file(self, content: bytes):
-        if self.current_photo is None:
+        if self.current_file is None:
             raise IndexError(
-                f"Photo iteration for handler '{self.file_handler_class.__name__}' not yet started. Use apgt.FileSource.next_photo() first"
+                f"Photo iteration for handler '{self.file_handler_class.__name__}' not yet started. Use {self.iter_files} first."
             )
+        self._current_file_handler.write_file(
+            path=self.current_file.remote_path, content=content
+        )
 
     def _initate_file_handler(self):
         self._current_file_handler: FileHandlerInterface = self.file_handler_class(

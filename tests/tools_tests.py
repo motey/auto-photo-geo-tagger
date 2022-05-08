@@ -4,6 +4,7 @@ from typing import List
 import gpxpy
 from gpxpy.gpx import GPXTrackPoint
 import datetime
+from exif import Image
 
 if __name__ == "__main__":
     # some boilerplate code to load this local module instead of installed one for developement
@@ -16,11 +17,17 @@ if __name__ == "__main__":
 from apgt.tools import (
     convert_datetime_to_site_specific_time,
     probe_timezones_in_track_section,
+    photo_has_exif_gps_data,
+    get_photo_date,
 )
+from apgt.file_source import RemoteFile
+
 
 track_file_with_two_tz = open("tests/test_data/track_with_two_tz.gpx", "r")
 track_with_two_tz = gpxpy.parse(track_file_with_two_tz)
+track_file_with_two_tz.close()
 points: List[GPXTrackPoint] = []
+
 for track in track_with_two_tz.tracks:
     for segment in track.segments:
         for point in segment.points:
@@ -54,3 +61,10 @@ assert "2022-05-06 14:00:00+02:00" == str(
         longitude=12.8,
     )
 )
+with open("tests/test_data/img_with_gps_exif.jpg", "rb") as f:
+    img = Image(f)
+assert photo_has_exif_gps_data(img) is True
+
+with open("tests/test_data/img_with_no_gps_exif.jpg", "rb") as f:
+    img = Image(f)
+assert photo_has_exif_gps_data(img) is False

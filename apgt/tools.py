@@ -3,6 +3,8 @@ import datetime
 import random
 import pytz
 from timezonefinder import TimezoneFinder
+from exif import Image
+from apgt.file_source import RemoteFile
 
 
 def convert_datetime_to_site_specific_time(
@@ -21,7 +23,6 @@ def convert_datetime_to_site_specific_time(
     target_tz_name = tf.timezone_at(lng=longitude, lat=latitude)
     target_tz = pytz.timezone(target_tz_name)
     # localize the utc time to the specific local time and return
-    # return pytz.utc.localize(source_datetime).astimezone(target_tz)
     return source_datetime.astimezone(target_tz)
 
 
@@ -37,6 +38,7 @@ def probe_timezones_in_track_section(
     """Function to check if a track crossed timezones at a certain section.
     Define a specific track point and probe the neigbeir points left and right according to range_to_probe_in_hourse
 
+    !Todo: This whole func needs a refactor. very ugly :)
 
     Args:
         initial_track_point (GPXTrackPoint): _description_
@@ -97,3 +99,37 @@ def probe_timezones_in_track_section(
                 )
             )
         return set(timezones)
+
+
+def photo_has_exif_gps_data(photo: Image) -> bool:
+    if (
+        photo.has_exif
+        and hasattr(photo, "gps_longitude")
+        and photo.gps_longitude
+        and hasattr(photo, "gps_latitude")
+        and photo.gps_latitude
+    ):
+        return True
+    return False
+
+
+def get_photo_date(photo_file: RemoteFile) -> datetime.datetime:
+    if photo_file.exif_image.has_exif and (
+        (
+            hasattr(photo_file.exif_image, "datetime_original")
+            and photo_file.exif_image.datetime_original
+        )
+        or (
+            hasattr(photo_file.exif_image, "datetime")
+            and photo_file.exif_image.datetime
+        )
+    ):
+        return (
+            photo_file.exif_image.datetime
+            if photo_file.exif_image.datetime
+            else photo_file.exif_image.datetime_original
+        )
+    else:
+        return photo_file.file_handler.get_alternative_file_creation_date_utc(
+            photo_file.remote_path
+        )
