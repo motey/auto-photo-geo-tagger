@@ -20,7 +20,7 @@ from apgt.tools import (
 )
 
 
-file_handler_name_matching: Dict = {
+file_handler_type_name_matching: Dict = {
     "local": LocalFileHandler,
     "WebDav3": WebDav3Handler,
 }
@@ -64,7 +64,7 @@ class APGT:
             FileSource(
                 name=name,
                 base_pathes=pathes,
-                file_handler_class=file_handler_name_matching[file_source_type],
+                file_handler_class=file_handler_type_name_matching[file_source_type],
                 file_handler_params=file_source_params,
                 allowed_extensions=allowed_extensions,
             )
@@ -82,7 +82,7 @@ class APGT:
             FileSource(
                 name=name,
                 base_pathes=pathes,
-                file_handler_class=file_handler_name_matching[file_source_type],
+                file_handler_class=file_handler_type_name_matching[file_source_type],
                 file_handler_params=file_source_params,
                 allowed_extensions=allowed_extensions,
             )
@@ -155,6 +155,9 @@ class APGT:
                 - target_time
             ),
         )
+        target_time_tz = target_time.tzinfo
+        # ToDo: you are here. if target time is tz aware we need to go a different route to compute nearest point.
+        raise NotImplementedError
 
         # we do not want return the nearest point if it is too far away in time (defined by self.NEAREST_TIME_TOLERANCE_SECS).
         # ..but some tracker do not create trackpoints when there is no movement.

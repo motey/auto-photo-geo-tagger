@@ -130,6 +130,6 @@ def get_photo_date(photo_file: RemoteFile) -> datetime.datetime:
             else photo_file.exif_image.datetime_original
         )
     else:
-        return photo_file.file_handler.get_alternative_file_creation_date_utc(
+        return photo_file.file_handler.get_alternative_photo_creation_date_utc(
             photo_file.remote_path
         )

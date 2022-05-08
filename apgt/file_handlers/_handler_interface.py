@@ -63,7 +63,7 @@ class FileHandlerInterface:
     def write_file(self, path: PurePath, content: bytes):
         raise NotImplementedError
 
-    def get_alternative_file_creation_date_utc(
+    def get_alternative_photo_creation_date_utc(
         self, path: PurePath
     ) -> datetime.datetime:
         """Optional fallback method to get a photos creation date. Will be used if there is no datetime in the exif data
