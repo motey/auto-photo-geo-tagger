@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import sys
 import logging
@@ -61,7 +62,9 @@ def run_apgt():
             file_source_params=access_config["params"] if access_config else None,
             allowed_extensions=config.FILES_GPX_EXTENSIONS,
         )
+
     for file_source_name, file_source_def in config.FILES_PHOTOS_LOCATIONS.items():
+
         pathes: List[str] = file_source_def["pathes"]
         access_config = None
         if "remote_access_config_name" in file_source_def:
@@ -73,7 +76,7 @@ def run_apgt():
             pathes=pathes,
             file_source_type=access_config["type"] if access_config else "local",
             file_source_params=access_config["params"] if access_config else None,
-            allowed_extensions=config.FILES_GPX_EXTENSIONS,
+            allowed_extensions=config.FILES_PHOTO_EXTENSIONS,
         )
     try:
         auto_tagger.run()

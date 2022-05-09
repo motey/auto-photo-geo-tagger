@@ -127,3 +127,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+tests/test_data/images_to_gps_tag

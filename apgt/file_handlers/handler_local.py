@@ -18,6 +18,8 @@ class LocalFileHandler(FileHandlerInterface):
 
     def list_files(self, directory: PurePath) -> List[RemoteFile]:
         p = Path(directory)
+        if not p.is_dir():
+            raise ValueError(f"No such directory: Can not list files in {p.absolute()}")
         files = []
         for obj in p.iterdir():
             if obj.is_file():
@@ -28,5 +30,7 @@ class LocalFileHandler(FileHandlerInterface):
         return open(path, "rb")
 
     def write_file(self, path: PurePath, content: bytes):
-        with open("path", "wb") as new_image_file:
+
+        with open(path, "wb") as new_image_file:
+            print("WRITE BACK to ", path)
             new_image_file.write(content)

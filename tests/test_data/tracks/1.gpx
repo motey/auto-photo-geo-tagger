@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpsies="http://www.gpsies.com/GPX/1/0" creator="GPSies http://www.gpsies.com - Moselradweg aus Wiki" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.gpsies.com/GPX/1/0 http://www.gpsies.com/gpsies.xsd">
+  <metadata>
+    <name>Crossing timezones track</name>
+    <time>2016-07-31T13:53:32Z</time>
+  </metadata>
+  <trk>
+    <name>Crossing timezones track</name>
+    <trkseg>
+      <trkpt lat="47.88" lon="6.8">
+        <ele>601.00000</ele>
+        <time>2022-05-09T12:05:00Z</time>
+      </trkpt>
+      <trkpt lat="47.88" lon="8.8">
+        <ele>593.00000</ele>
+        <time>2022-05-09T13:05:00Z</time>
+      </trkpt>
+      <trkpt lat="47.88" lon="10.8">
+        <ele>592.00000</ele>
+        <time>2022-05-09T14:05:00Z</time>
+      </trkpt>
+      <trkpt lat="47.88" lon="12.8">
+        <ele>591.00000</ele>
+        <time>2022-05-09T15:05:00Z</time>
+      </trkpt>
+      <trkpt lat="47.88" lon="18.84">
+        <ele>582.00000</ele>
+        <time>2022-05-09T16:05:00Z</time>
+      </trkpt>
+      <trkpt lat="47.88" lon="18.85">
+        <ele>577.00000</ele>
+        <time>2022-05-09T17:05:00Z</time>
+      </trkpt>
+      <trkpt lat="47.88" lon="18.8">
+        <ele>581.00000</ele>
+        <time>2022-05-09T18:05:00Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

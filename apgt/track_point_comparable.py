@@ -16,3 +16,4 @@ class GPXTrackPointComparable(GPXTrackPoint):
     @classmethod
     def from_GPXTrackPoint(cls, p):
         p.__class__ = cls
+        return p

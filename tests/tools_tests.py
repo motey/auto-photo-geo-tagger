@@ -15,12 +15,18 @@ if __name__ == "__main__":
     print(os.path.normpath(SCRIPT_DIR))
     sys.path.insert(0, os.path.normpath(SCRIPT_DIR))
 from apgt.tools import (
-    convert_datetime_to_site_specific_time,
+    convert_datetime_tz_to_site_specific_tz,
     probe_timezones_in_track_section,
     photo_has_exif_gps_data,
     get_photo_date,
+    get_next_item_in_list,
 )
 from apgt.file_source import RemoteFile
+
+assert "d" == get_next_item_in_list(["a", "b", "c", "d"], "c")
+assert "b" == get_next_item_in_list(["a", "b", "c", "d"], "c", reverse=True)
+assert None == get_next_item_in_list(["a", "b", "c", "d"], "d", reverse=True)
+assert None == get_next_item_in_list(["a", "b", "c", "d"], "a")
 
 
 track_file_with_two_tz = open("tests/test_data/track_with_two_tz.gpx", "r")
@@ -44,7 +50,7 @@ assert (
 
 # test utc to local time conversion
 assert "2022-05-06 14:00:00+02:00" == str(
-    convert_datetime_to_site_specific_time(
+    convert_datetime_tz_to_site_specific_tz(
         source_datetime=datetime.datetime(
             2022, 5, 6, 12, 00, tzinfo=datetime.timezone.utc
         ),
@@ -55,7 +61,7 @@ assert "2022-05-06 14:00:00+02:00" == str(
 
 # test unaware datetime (assume utc) to local time conversion
 assert "2022-05-06 14:00:00+02:00" == str(
-    convert_datetime_to_site_specific_time(
+    convert_datetime_tz_to_site_specific_tz(
         source_datetime=datetime.datetime(2022, 5, 6, 12, 00),
         latitude=47.88,
         longitude=12.8,

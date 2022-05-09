@@ -21,6 +21,7 @@ setup(
         "geopy",
         "gpxpy",
         "timezonefinder[numba]",
+        "dateparser",
     ],
     python_requires=">=3.9",
     zip_safe=False,
