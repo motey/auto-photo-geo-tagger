@@ -4,7 +4,6 @@ import datetime
 from exif import Image
 import gpxpy
 import pytz
-from gpxpy.gpx import GPXTrackPoint
 from geopy import distance
 import itertools
 from apgt.track_point_comparable import GPXTrackPointComparable
@@ -99,7 +98,7 @@ class APGT:
         self._match_images_to_gpx_track_points()
 
     def _load_gpx_track_points(self):
-        """Load all GPX tracks from all provided GPX files and aggreate them to one long track"""
+        """Load all GPX tracks from all provided GPX files and aggreate them to tracks seperated by day"""
         for gpx_file_source in self.gpx_file_sources:
             for gpx_file in gpx_file_source.iter_files():
                 gpx = gpxpy.parse(gpx_file.content)
