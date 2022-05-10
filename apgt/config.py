@@ -1,10 +1,10 @@
 from typing import List, Dict, Union
 from Configs import ConfigBase
 
-
+# Default Environment
 class DEFAULT(ConfigBase):
     LOG_LEVEL = "INFO"
-    # FILES_REMOTE_ACCESS; If you use any remote locations for you files you can define the access parameters here
+    # FILES_REMOTE_ACCESS; If you use any remote locations for your files you can define the access parameters here
     # At the moment supported "type"s are :
     # * "webdav3" based on https://pypi.org/project/webdavclient3/
     # examples:
@@ -47,6 +47,7 @@ class DEFAULT(ConfigBase):
     # With this setting we can force to use tracking points further away in time as TAGGING_TIME_TOLERANCE_SECS to to geotag photos. even if the photos were taken hours after the tracking point event.
     TAGGING_IGNORE_TIME_TOLERANCE_IF_DISTANCE_SMALLER_THEN_N_METERS: int = 60
 
+    #! Not implemented yet, no effect
     # TAGGING_ACCURACY_TOLERANCE_METER; if a gpx trackpoint does have a `extension/accuracy` data, we can define a max value of accuracy we tolerate to use the value for tagging
     # 0 for disable
     # defaults to 0
@@ -70,6 +71,7 @@ class DEFAULT(ConfigBase):
     }
 
 
+# Overwrite default environment for testing
 class TEST(DEFAULT):
     LOG_LEVEL = "DEBUG"
     FILES_GPX_TRACK_LOCATIONS = {
@@ -78,3 +80,4 @@ class TEST(DEFAULT):
     FILES_PHOTOS_LOCATIONS = {
         "my-local-gpx01": {"pathes": ["../tests/test_data/images_to_gps_tag"]}
     }
+    TAGGING_TIME_TOLERANCE_SECS: int = 500

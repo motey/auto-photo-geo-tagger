@@ -39,7 +39,7 @@ def set_naive_datetime_to_site_specific_tz(
     target_tz_name = tf.timezone_at(lng=longitude, lat=latitude)
     target_tz = pytz.timezone(target_tz_name)
     # localize the utc time to the specific local time and return
-    return source_datetime.replace(tzinfo=target_tz)
+    return target_tz.localize(source_datetime)
 
 
 from gpxpy.gpx import GPXTrackPoint
@@ -96,11 +96,6 @@ def probe_timezones_in_track_section(
         ):
             # we are done probing because we reached the defined range limit `range_to_probe_in_hours`
             # but lets take the last timezone point into account
-            print(
-                current_trackpoint.time,
-                initial_track_point.time,
-                current_trackpoint.time - initial_track_point.time,
-            )
             last_trackpoint = track_points[track_point_index + 1]
             timezones.append(
                 target_tz_name=tf.timezone_at(
@@ -114,7 +109,7 @@ def probe_timezones_in_track_section(
                     lng=current_trackpoint.longitude, lat=current_trackpoint.latitude
                 )
             )
-        return set(timezones)
+    return set(timezones)
 
 
 def photo_has_exif_gps_data(photo: Image) -> bool:

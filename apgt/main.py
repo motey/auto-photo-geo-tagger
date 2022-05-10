@@ -48,6 +48,7 @@ def run_apgt():
     auto_tagger.IGNORE_NEAREST_TIME_TOLERANCE_SECS_IF_DISTANCE_SMALLER_THEN_N_METERS = (
         config.TAGGING_IGNORE_TIME_TOLERANCE_IF_DISTANCE_SMALLER_THEN_N_METERS
     )
+    auto_tagger.OPTIMISTIC_DATEMATCHING = config.FILES_EXIF_OPTIMISTIC_DATE_PARSER
     for file_source_name, file_source_def in config.FILES_GPX_TRACK_LOCATIONS.items():
         pathes: List[str] = file_source_def["pathes"]
         access_config = None

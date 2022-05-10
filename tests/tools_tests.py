@@ -21,7 +21,7 @@ from apgt.tools import (
     get_photo_date,
     get_next_item_in_list,
 )
-from apgt.file_source import RemoteFile
+
 
 assert "d" == get_next_item_in_list(["a", "b", "c", "d"], "c")
 assert "b" == get_next_item_in_list(["a", "b", "c", "d"], "c", reverse=True)

@@ -41,6 +41,7 @@ class APGT:
     # if movement distance to neighbor points is less than this value, we can ignore NEAREST_TIME_TOLERANCE_SECS
     IGNORE_NEAREST_TIME_TOLERANCE_SECS_IF_DISTANCE_SMALLER_THEN_N_METERS: int = 100
     ADDITIONAL_EXIF_TAGS_IF_MODIFIED: Dict = None
+    OPTIMISTIC_DATEMATCHING: bool = False
 
     def __init__(self):
         self.gpx_file_sources: List[FileSource] = []
@@ -124,49 +125,58 @@ class APGT:
 
     def _match_images_to_gpx_track_points(self):
         for photo_source in self.photo_file_sources:
-            print("iter", photo_source.base_pathes)
             for file in photo_source.iter_files():
                 if photo_has_exif_gps_data(file.exif_image):
                     # image allready has gps data. go to next mage
                     continue
-                photo_date = get_photo_date(file)
-                if photo_date:
-                    point: GPXTrackPointComparable = (
-                        self._get_nearest_track_point_in_time(photo_date)
+                point = self._find_matching_trackpoint_for_photo(file)
+                if point:
+                    self._write_gpxpoint_to_exif_gps_data(point, file)
+
+    def _find_matching_trackpoint_for_photo(
+        self, file: RemoteFile
+    ) -> GPXTrackPointComparable:
+        photo_date = get_photo_date(file, self.OPTIMISTIC_DATEMATCHING)
+        if photo_date:
+            point: GPXTrackPointComparable = self._get_nearest_track_point_in_time(
+                photo_date
+            )
+            # print(file.remote_path, photo_date, point)
+            # if we found a trackpoint with a timestamp that closely matches the timestamp of the photo and we did not cross any timezones during the day the photo was taken, we can assert the photo was shoot at `point`
+            if point:
+                crossed_timezones_during_potential_photo_creation_time = probe_timezones_in_track_section(
+                    initial_track_point=point,
+                    track_points=self._get_relevant_points_to_find_specific_datetime(
+                        photo_date
+                    ),
+                    range_to_probe_in_hours=12,
+                    probe_accuracy=0.1,
+                )
+                if (
+                    photo_date.tzinfo is not None
+                    or len(crossed_timezones_during_potential_photo_creation_time) <= 1
+                ):
+                    return point
+                else:
+                    log.debug(
+                        f"No trackpoint for image '{file.remote_path}' because timezones were crossed in potencial trackpoints. ({crossed_timezones_during_potential_photo_creation_time} ) We can not assure which date is a match. You have to tag this image manually."
                     )
-                    print(photo_date, point)
-                    # if we found a trackpoint with a timestamp that closely matches the timestamp of the photo and we did not cross any timezones during the day the photo was taken, we can assert the photo was shoot at `point`
-                    if point:
-                        crossed_timezones_during_potential_photo_creation_time = probe_timezones_in_track_section(
-                            initial_track_point=point,
-                            track_points=self._get_relevant_points_to_find_specific_datetime(
-                                photo_date
-                            ),
-                            range_to_probe_in_hours=12,
-                            probe_accuracy=0.1,
-                        )
-                        if (
-                            photo_date.tzinfo is not None
-                            or len(
-                                crossed_timezones_during_potential_photo_creation_time
-                            )
-                            == 1
-                        ):
-                            self._write_gpxpoint_to_exif_gps_data(point, file)
-                        else:
-                            log.debug(
-                                f"Not tagging image '{file.remote_path}' because timezones were crossed in potencial trackpoints. ({crossed_timezones_during_potential_photo_creation_time} ) We can not assure which date is a match. You have to tag this image manually."
-                            )
-                    else:
-                        log.debug(
-                            f"Not tagging image '{file.remote_path}' because no matching tracking points were found."
-                        )
+            else:
+                log.debug(f"No trackpoint found for image '{file.remote_path}'.")
 
     def _write_gpxpoint_to_exif_gps_data(
         self, point: GPXTrackPointComparable, file: RemoteFile
     ):
+        log.debug(
+            f"Tag photo '{file.remote_path}' created on {get_photo_date(file,self.OPTIMISTIC_DATEMATCHING)} with point {point} (point local time:{convert_datetime_tz_to_site_specific_tz(point.time,point.latitude,point.longitude)} )"
+        )
         file.exif_image.gps_latitude = point.latitude
         file.exif_image.gps_longitude = point.longitude
+        log.debug(
+            "No exif GPS timestamp written because https://gitlab.com/TNThieding/exif/-/issues/65"
+        )
+        # file.exif_image.gps_timestamp = point.time.strftime("%H:%M:%S")
+        file.exif_image.gps_datestamp = point.time.strftime("%Y:%m:%d")
         for tag, val in self.ADDITIONAL_EXIF_TAGS_IF_MODIFIED.items():
             setattr(file.exif_image, tag, val)
         file.push()
@@ -214,7 +224,7 @@ class APGT:
         )
         if not nearest_point:
             # No trackpoints for the day of photo creation
-            return
+            return None
         nearest_point_time_localized = convert_datetime_tz_to_site_specific_tz(
             nearest_point.time, nearest_point.latitude, nearest_point.longitude
         )
@@ -234,14 +244,14 @@ class APGT:
             if neighbor_trackpoint is None:
                 # if we were at the end or start of our track, we cant not determine any distance.
                 return None
-            distance_to_neighbor_point: int = int(
+            distance_to_neighbor_point_meter: int = int(
                 distance.distance(
                     (nearest_point.latitude, nearest_point.longitude),
                     (neighbor_trackpoint.latitude, neighbor_trackpoint.longitude),
                 ).meters
             )
             if (
-                distance_to_neighbor_point
+                distance_to_neighbor_point_meter
                 < self.IGNORE_NEAREST_TIME_TOLERANCE_SECS_IF_DISTANCE_SMALLER_THEN_N_METERS
             ):
                 # we had no movement therefore the `nearest_point`, although far away in time, is valid
