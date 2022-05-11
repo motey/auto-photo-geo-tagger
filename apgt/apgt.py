@@ -213,6 +213,8 @@ class APGT:
         relevant_points = self._get_relevant_points_to_find_specific_datetime(
             target_time
         )
+        if not relevant_points:
+            return
         nearest_point: GPXTrackPointComparable = min(
             relevant_points,
             key=lambda x: abs(
