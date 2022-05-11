@@ -3,7 +3,7 @@ import os
 import sys
 from multiprocessing import Process
 import subprocess
-from pathlib import PurePath
+from pathlib import PurePath, Path
 from distutils.dir_util import copy_tree
 from shutil import rmtree
 
@@ -18,7 +18,9 @@ if __name__ == "__main__":
     sys.path.insert(0, os.path.normpath(SCRIPT_DIR))
 
 # reset image dir
-rmtree(PurePath(SCRIPT_DIR, "tests/test_data/images_to_gps_tag"))
+test_tmp_path = PurePath(SCRIPT_DIR, "tests/test_data/images_to_gps_tag")
+if Path(test_tmp_path).is_dir():
+    rmtree(PurePath(SCRIPT_DIR, "tests/test_data/images_to_gps_tag"))
 copy_tree(
     src=str(PurePath(SCRIPT_DIR, "tests/test_data/images_no_gps")),
     dst=str(PurePath(SCRIPT_DIR, "tests/test_data/images_to_gps_tag")),

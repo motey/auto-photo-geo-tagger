@@ -156,19 +156,26 @@ class APGT:
                     photo_date.tzinfo is not None
                     or len(crossed_timezones_during_potential_photo_creation_time) <= 1
                 ):
+                    print(
+                        "point tz",
+                        crossed_timezones_during_potential_photo_creation_time,
+                        point,
+                    )
                     return point
                 else:
                     log.debug(
                         f"No trackpoint for image '{file.remote_path}' because timezones were crossed in potencial trackpoints. ({crossed_timezones_during_potential_photo_creation_time} ) We can not assure which date is a match. You have to tag this image manually."
                     )
             else:
-                log.debug(f"No trackpoint found for image '{file.remote_path}'.")
+                log.debug(
+                    f"No trackpoint found for image '{file.remote_path}'. Image date: {photo_date}"
+                )
 
     def _write_gpxpoint_to_exif_gps_data(
         self, point: GPXTrackPointComparable, file: RemoteFile
     ):
         log.debug(
-            f"Tag photo '{file.remote_path}' created on {get_photo_date(file,self.OPTIMISTIC_DATEMATCHING)} with point {point} (point local time:{convert_datetime_tz_to_site_specific_tz(point.time,point.latitude,point.longitude)} )"
+            f"Tag photo '{file.remote_path}' created on {get_photo_date(file,self.OPTIMISTIC_DATEMATCHING)} with point {point} ({point.name if hasattr(point,'name') else ''} point local time:{convert_datetime_tz_to_site_specific_tz(point.time,point.latitude,point.longitude)} )"
         )
         file.exif_image.gps_latitude = point.latitude
         file.exif_image.gps_longitude = point.longitude
@@ -233,12 +240,28 @@ class APGT:
         target_time_localized = set_naive_datetime_to_site_specific_tz(
             target_time, nearest_point.latitude, nearest_point.longitude
         )
+
+        # print("nearest_point", nearest_point)
+        # print("nearest_point.time", nearest_point.time)
+        # print("target_time", target_time)
+        # print("target_time_localized", target_time_localized)
+        # print(
+        #    f"TIMDISTANCE to large {self.NEAREST_TIME_TOLERANCE_SECS}",
+        #    abs((nearest_point_time_localized - target_time_localized).total_seconds())
+        #    >= self.NEAREST_TIME_TOLERANCE_SECS,
+        # )
+        # print(
+        #    "TIMDISTANCE",
+        #    abs((nearest_point_time_localized - target_time_localized).total_seconds()),
+        # )
+
         # we do not want return the nearest point if it is too far away in time (defined by self.NEAREST_TIME_TOLERANCE_SECS).
         # ..but some tracker do not create trackpoints when there is no movement.
         # therefore we need to test if there was no movement. then we can ignore self.NEAREST_TIME_TOLERANCE_SECS
+
         if (
             abs((nearest_point_time_localized - target_time_localized).total_seconds())
-            >= self.NEAREST_TIME_TOLERANCE_SECS
+            <= self.NEAREST_TIME_TOLERANCE_SECS
         ):
             neighbor_trackpoint = self._get_neighbor_trackpoint(
                 nearest_point, target_time_localized
