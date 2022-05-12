@@ -117,7 +117,7 @@ class APGT:
 
         self.points = dict(sorted(self.points.items()))
         for day, points in self.points.items():
-            self.points[day] = sorted(set(points), key=lambda x: x.time, reverse=True)
+            self.points[day] = sorted(set(points), key=lambda x: x.time)
         if len(self.points) == 0:
             raise ErrorNoGPXTracksFound(
                 f"No tracks with trackpoints found in pathes {list(itertools.chain(*[fs.base_pathes for fs in self.gpx_file_sources]))}"
@@ -156,11 +156,6 @@ class APGT:
                     photo_date.tzinfo is not None
                     or len(crossed_timezones_during_potential_photo_creation_time) <= 1
                 ):
-                    print(
-                        "point tz",
-                        crossed_timezones_during_potential_photo_creation_time,
-                        point,
-                    )
                     return point
                 else:
                     log.debug(
@@ -220,6 +215,17 @@ class APGT:
         relevant_points = self._get_relevant_points_to_find_specific_datetime(
             target_time
         )
+        """
+        print(
+            "relevant_points",
+            "\n".join(
+                [
+                    f"{p.name}-{convert_datetime_tz_to_site_specific_tz(p.time, p.latitude, p.longitude)}-{p}"
+                    for p in relevant_points
+                ]
+            ),
+        )
+        """
         if not relevant_points:
             return
         nearest_point: GPXTrackPointComparable = min(
@@ -231,9 +237,13 @@ class APGT:
                 )
             ),
         )
+
         if not nearest_point:
             # No trackpoints for the day of photo creation
             return None
+        # print(
+        #    f"NP {nearest_point.name}-{convert_datetime_tz_to_site_specific_tz(nearest_point.time, nearest_point.latitude, nearest_point.longitude)}-{nearest_point}"
+        # )
         nearest_point_time_localized = convert_datetime_tz_to_site_specific_tz(
             nearest_point.time, nearest_point.latitude, nearest_point.longitude
         )
@@ -258,10 +268,9 @@ class APGT:
         # we do not want return the nearest point if it is too far away in time (defined by self.NEAREST_TIME_TOLERANCE_SECS).
         # ..but some tracker do not create trackpoints when there is no movement.
         # therefore we need to test if there was no movement. then we can ignore self.NEAREST_TIME_TOLERANCE_SECS
-
         if (
             abs((nearest_point_time_localized - target_time_localized).total_seconds())
-            <= self.NEAREST_TIME_TOLERANCE_SECS
+            >= self.NEAREST_TIME_TOLERANCE_SECS
         ):
             neighbor_trackpoint = self._get_neighbor_trackpoint(
                 nearest_point, target_time_localized
@@ -287,19 +296,18 @@ class APGT:
             return nearest_point
 
     def _get_neighbor_trackpoint(
-        self, starting_point: GPXTrackPointComparable, direction_date: datetime.datetime
+        self,
+        starting_point: GPXTrackPointComparable,
+        direction_date_localized: datetime.datetime,
     ):
         starting_day = starting_point.time.date()
-        direction_date_localized = set_naive_datetime_to_site_specific_tz(
-            direction_date, starting_point.latitude, starting_point.longitude
-        )
         if starting_point.time > direction_date_localized:
             # the neighbor points lies before starting_point
+
             direction = -1
         else:
             # the neighbor points lies after starting_point
             direction = 1
-
         index_of_starting_point = self.points[starting_day].index(starting_point)
         if (index_of_starting_point > 0 and direction == -1) or (
             index_of_starting_point < len(self.points[starting_day]) - 1

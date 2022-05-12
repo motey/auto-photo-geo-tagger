@@ -39,6 +39,7 @@ def set_naive_datetime_to_site_specific_tz(
     target_tz_name = tf.timezone_at(lng=longitude, lat=latitude)
     target_tz = pytz.timezone(target_tz_name)
     # localize the utc time to the specific local time and return
+    with_tz = target_tz.localize(source_datetime)
     return target_tz.localize(source_datetime)
 
 

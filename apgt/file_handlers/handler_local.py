@@ -24,7 +24,7 @@ class LocalFileHandler(FileHandlerInterface):
         for obj in p.iterdir():
             if obj.is_file():
                 files.append(RemoteFile(remote_path=obj, file_handler=self))
-        return files
+        return sorted(files, key=lambda x: x.remote_path.name)
 
     def read_file(self, path: PurePath) -> bytes:
         return open(path, "rb")

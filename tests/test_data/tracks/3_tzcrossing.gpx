@@ -7,45 +7,45 @@
   <trk>
     <name>Crossing timezones track</name>
     <trkseg>
-      <trkpt lat="47.88" lon="13.4">
+      <trkpt lat="47.88" lon="6.8">
         <ele>601.00000</ele>
-        <time>2020-01-01T00:00:00Z</time>
-        <name>tp01</name>
+        <time>2020-02-01T00:00:00Z</time>
+        <name>tp17</name>
       </trkpt>
-      <trkpt lat="48.88" lon="13.4">
+      <trkpt lat="47.88" lon="8.8">
         <ele>593.00000</ele>
-        <time>2020-01-01T00:30:00Z</time>
-        <name>tp02</name>
+        <time>2020-02-01T00:30:00Z</time>
+        <name>tp18</name>
       </trkpt>
-      <trkpt lat="49.88" lon="13.4">
+      <trkpt lat="47.88" lon="10.8">
         <ele>592.00000</ele>
-        <time>2020-01-01T01:00:41Z</time>
-        <name>tp03</name>
+        <time>2020-02-01T01:00:41Z</time>
+        <name>tp19</name>
       </trkpt>
-      <trkpt lat="50.88" lon="13.4">
+      <trkpt lat="47.88" lon="12.8">
         <ele>591.00000</ele>
-        <time>2020-01-01T02:00:00Z</time>
-        <name>tp04</name>
+        <time>2020-02-01T02:00:00Z</time>
+        <name>tp20</name>
       </trkpt>
-      <trkpt lat="51.88" lon="13.4">
+      <trkpt lat="47.88" lon="14.8">
         <ele>582.00000</ele>
-        <time>2020-01-01T03:00:00Z</time>
-        <name>tp05</name>
+        <time>2020-02-01T03:00:00Z</time>
+        <name>tp21</name>
       </trkpt>
-      <trkpt lat="52.88" lon="13.4">
+      <trkpt lat="47.88" lon="16.8">
         <ele>577.00000</ele>
-        <time>2020-01-01T04:30:00Z</time>
-        <name>tp06</name>
+        <time>2020-02-01T04:30:00Z</time>
+        <name>tp22</name>
       </trkpt>
-      <trkpt lat="53.88" lon="13.4">
+      <trkpt lat="47.88" lon="18.8">
         <ele>581.00000</ele>
-        <time>2020-01-01T05:00:00Z</time>
-        <name>tp07</name>
+        <time>2020-02-01T05:00:00Z</time>
+        <name>tp23</name>
       </trkpt>
-      <trkpt lat="53.89" lon="13.4">
+      <trkpt lat="47.88" lon="18.8">
         <ele>581.00000</ele>
-        <time>2020-01-01T08:00:16Z</time>
-        <name>tp08</name>
+        <time>2020-02-01T08:00:16Z</time>
+        <name>tp24</name>
       </trkpt>
     </trkseg>
   </trk>
