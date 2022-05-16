@@ -6,6 +6,7 @@ https://python-pillow.org/ https://pillow.readthedocs.io/en/stable/handbook/inde
 # Ideas
 
 * Create a metadata file in every directory with a hash of all photo pathes if all images in a dir are tagged. this way we can recheck every run if we need to touch this dir again. this can improve perfomance after initals runs dramactly
+* Add human readable location
 
 # Current issues
 
