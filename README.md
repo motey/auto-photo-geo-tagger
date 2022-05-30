@@ -6,7 +6,7 @@ Status: pre-alpha, WIP (You just have to wait a bit :) )
 - [auto-photo-geo-tagger](#auto-photo-geo-tagger)
 - [tl;tr](#tltr)
   - [Is this applicable to my photos?](#is-this-applicable-to-my-photos)
-  - [Which photos will not be tagged (without userinput)](#which-photos-will-not-be-tagged-without-userinput)
+  - [Which photos can not be tagged (without userinput)](#which-photos-can-not-be-tagged-without-userinput)
 - [In detail](#in-detail)
   - [Whats different compared to other existing solutions?](#whats-different-compared-to-other-existing-solutions)
 - [Warnings and caveats](#warnings-and-caveats)
@@ -17,14 +17,14 @@ Status: pre-alpha, WIP (You just have to wait a bit :) )
 
 If you want to geotag **personal** photos with **personal** GPX tracks: Yes!
 
-* Your GPX Tracks are single party only. No sharing of GPX Tracks with friends
+* Your GPX Tracks are single party only. No sharing of GPX Tracks with friends in one folder
 * Your photos are single party only. e.g. No group sharing folder of photos with no GPS tags from your holidays at this end of the world and your friends holidays at the other end of the world at the same time.
 * Your photos are always timestamped in the local time (With correct [daylight saving time shift](https://en.wikipedia.org/wiki/Daylight_saving_time)). Meaning: Set your camera **always** to the local time before starting shooting photos.
 
-## Which photos will not be tagged (without userinput)
+## Which photos can not be tagged (without userinput)
 
 * Photos of days you crossed a timezone
-* Photos too far away from any GPX Trackpoint (in terms of distance in time and or travel)
+* Photos too far away from any GPX Trackpoint (in terms of distance in time and/or travel)
 
 # In detail
 

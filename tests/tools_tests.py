@@ -74,3 +74,18 @@ assert photo_has_exif_gps_data(img) is True
 with open("tests/test_data/img_with_no_gps_exif.jpg", "rb") as f:
     img = Image(f)
 assert photo_has_exif_gps_data(img) is False
+
+
+with open("tests/test_data/modern_phone_tz_aware_2020.08.14_14.33.jpg", "rb") as f:
+    img = Image(f)
+    dt = img.datetime
+    print(type(dt), dt)
+    dt_dt = datetime.datetime.strptime(dt, "%Y:%m:%d %H:%M:%S")
+    print(type(dt_dt), dt_dt)
+    offset = img.offset_time
+    print(type(offset), img.offset_time)
+    timezone = datetime.datetime.strptime(offset, "%z")
+    print(type(timezone.tzinfo), timezone.tzinfo)
+    print(dt_dt.astimezone(timezone.tzinfo))
+    # dtobj_tz = dt_dt.astimezone(.tzinfo)
+    datetime.datetime.strptime("sd34", "%z")

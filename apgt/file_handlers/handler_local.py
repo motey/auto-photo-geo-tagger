@@ -27,10 +27,8 @@ class LocalFileHandler(FileHandlerInterface):
         return sorted(files, key=lambda x: x.remote_path.name)
 
     def read_file(self, path: PurePath) -> bytes:
-        return open(path, "rb")
+        return open(path, "rb").read()
 
     def write_file(self, path: PurePath, content: bytes):
-
         with open(path, "wb") as new_image_file:
-            print("WRITE BACK to ", path)
             new_image_file.write(content)

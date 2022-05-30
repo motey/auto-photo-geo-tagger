@@ -116,7 +116,7 @@ def main():
             next_time = cron_job.get_next(datetime.datetime)
             log.info(f"Wait until {next_time} for next import")
             wait_until(next_time)
-            # run in a seperated process to prevent any possible memory leackage over time
+            # run in a seperated throwaway subprocess to prevent any possible memory leackage over time
             run_in_subprocess(run_apgt)
             log.info(f"------")
     else:

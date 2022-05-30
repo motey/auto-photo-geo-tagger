@@ -1,3 +1,4 @@
+from multiprocessing.managers import ValueProxy
 from typing import List, Set, Any
 import datetime
 import random
@@ -7,6 +8,9 @@ from timezonefinder import TimezoneFinder
 from exif import Image
 import dateparser
 from apgt.file_source import RemoteFile
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def convert_datetime_tz_to_site_specific_tz(
@@ -129,32 +133,56 @@ def get_photo_date(
     photo_file: RemoteFile, optimistic_parsing: bool = False
 ) -> datetime.datetime:
     date_string = None
-    if photo_file.exif_image.has_exif and (
-        (
+    offset = None
+    if photo_file.exif_image.has_exif:
+        if (
             hasattr(photo_file.exif_image, "datetime_original")
             and photo_file.exif_image.datetime_original
-        )
-        or (
+        ):
+            date_string = photo_file.exif_image.datetime_original
+
+            if (
+                hasattr(photo_file.exif_image, "offset_time_original")
+                and photo_file.exif_image.offset_time_original
+            ):
+                offset = photo_file.exif_image.offset_time_original
+
+            # 'offset_time', 'offset_time_digitized', 'offset_time_original'
+        if (
             hasattr(photo_file.exif_image, "datetime")
             and photo_file.exif_image.datetime
-        )
-    ):
-        date_string = (
-            photo_file.exif_image.datetime
-            if hasattr(photo_file.exif_image, "datetime")
-            else photo_file.exif_image.datetime_original
-        )
-    else:
+        ):
+            date_string = photo_file.exif_image.datetime
+            if (
+                hasattr(photo_file.exif_image, "offset_time")
+                and photo_file.exif_image.offset_time
+            ):
+                offset = photo_file.exif_image.offset_time
+
+    if not date_string:
         date_string = photo_file.file_handler.get_alternative_photo_creation_date_utc(
             photo_file.remote_path
         )
     if isinstance(date_string, datetime.datetime):
         return date_string
     elif isinstance(date_string, str):
+        dt: datetime.datetime = None
         if optimistic_parsing:
-            return dateparser.parse(date_string=date_string)
+            dt = dateparser.parse(date_string=date_string)
         else:
-            return datetime.datetime.strptime(date_string, "%Y:%m:%d %H:%M:%S")
+            dt = datetime.datetime.strptime(date_string, "%Y:%m:%d %H:%M:%S")
+        if offset:
+            tz: datetime.timezone = None
+            try:
+                tz = datetime.datetime.strptime(offset, "%z").tzinfo
+            except ValueError:
+                log.warning(
+                    f"Could not parse timezone offset string for '{photo_file.remote_path}'. Expected '±HHMM','±HH:MM' got '{offset}' "
+                )
+            if tz:
+                dt = dt.astimezone(tz)
+
+        return dt
     else:
         raise ValueError(
             f"Expected str or datetime.datetime type got {type(date_string)}: {date_string}"

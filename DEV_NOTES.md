@@ -11,3 +11,7 @@ https://python-pillow.org/ https://pillow.readthedocs.io/en/stable/handbook/inde
 # Current issues
 
 * EXIF timestamps can contain utc offset https://stackoverflow.com/a/70253990/12438690
+
+
+
+apt install exiv2
